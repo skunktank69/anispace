@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  name        String?
+  avatar      String?
+  password    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  readList    ReadItem[]
+  watchList   WatchItem[]
+  recentItems RecentItem[]
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+}
+
+model ReadItem {
+  id         Int      @id @default(autoincrement())
+  provider   String
+  providerId String
+  title      String
+  poster     String?
+  onChapter  Float    @default(0)
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     Int?
+  type       String
+  createdAt  DateTime @default(now())
+  color      String
+}
+
+model WatchItem {
+  id         Int      @id @default(autoincrement())
+  provider   String
+  providerId String
+  title      String
+  poster     String?
+  onEpisode  Float    @default(0)
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     Int?
+  type       String
+  createdAt  DateTime @default(now())
+  color      String
+}
+
+model RecentItem {
+  id          Int      @id @default(autoincrement())
+  provider    String
+  providerId  String
+  title       String
+  poster      String?
+  onEpisode   Float?
+  onChapter   Float?
+  timestamps  String?
+  currentPage Int?
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      Int
+  type        String
+  createdAt   DateTime @default(now())
+  UpdatedAt   DateTime @default(now())
+  color       String
+}
+
+//
+// --- POST SYSTEM ---
+//
+
+model Post {
+  id         Int         @id @default(autoincrement())
+  content    String?
+  images     PostImage[]
+  user       User        @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  mediaType  String?
+  provider   String?
+  providerId String?
+  comments   Comment[]
+  likes      Like[]
+}
+
+model PostImage {
+  id     Int    @id @default(autoincrement())
+  url    String
+  post   Post   @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
